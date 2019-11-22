@@ -605,11 +605,11 @@ def main():
 
     parser = argparse.ArgumentParser(
         description='Process a teamocil file natively in iTerm2 (i.e. without tmux).',
-        usage='%(prog)s [options] <layout>'
+        usage='%(prog)s [options] <layout_or_layout_file>'
     )
 
     parser.add_argument("layout_name",
-                        help="the layout name you wish to process",
+                        help="the layout name you wish to process or the file path to the layout",
                         metavar="layout",
                         nargs="*")
 
@@ -673,14 +673,17 @@ def main():
         sys.exit(0)
 
     filepath = None
-    if not args.layout_name:
+    if not args.layout_name or ".yml" in args.layout_name[0]:
+        layout_file = args.layout_name[0]
         # parser.error('You must supply a layout name, or just the --list option. Use -h for help.')
-        filepath = os.path.join(os.getcwd(), 'iTermocil.yml')
-        if not os.path.isfile(filepath):
-            filepath = os.path.join(os.getcwd(), '.itermocil.yml')
+        filepath = os.path.join(os.getcwd(), layout_file)
+        if not os.path.isfile(layout_file):
+            filepath = os.path.join(os.getcwd(), 'iTermocil.yml')
             if not os.path.isfile(filepath):
-                parser.print_help()
-                sys.exit(1)
+                filepath = os.path.join(os.getcwd(), '.itermocil.yml')
+                if not os.path.isfile(filepath):
+                    parser.print_help()
+                    sys.exit(1)
     else:
         layout = args.layout_name[0]
         # Sanitize input
